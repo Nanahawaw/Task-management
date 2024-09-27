@@ -10,10 +10,11 @@ export const UserAuthGuard = async (
   req: UserAuthRequest,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({ error: 'Aunthentication required' });
+    res.status(401).json({ error: 'Aunthentication required' });
+    return;
   }
 
   try {
@@ -22,9 +23,10 @@ export const UserAuthGuard = async (
     };
     const user = await User.query().findById(decoded.id);
     if (!user) throw new Error('User not found');
-    req.user = user;
+    (req as Request & { user?: User }).user = user;
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Invalid token' });
+    res.status(401).json({ error: 'Invalid token' });
+    return;
   }
 };

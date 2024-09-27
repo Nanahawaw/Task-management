@@ -4,8 +4,6 @@ import { Comment } from './comment';
 import { Tags, TaskStatus } from '../utils/enum';
 
 export class Task extends Model {
-  static tableName = 'tasks';
-
   id!: number;
   title!: string;
   description!: string;
@@ -14,6 +12,8 @@ export class Task extends Model {
   createdById!: number;
   assignedToId!: number;
   tags!: Tags;
+
+  static tableName = 'tasks';
 
   static relationMappings = {
     createdBy: {
