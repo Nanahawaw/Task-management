@@ -2,8 +2,14 @@
   "name": "task-management",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
+    "type": " module",
+    "start": "dist/app.js",
+    "dev": "nodemon src/app.ts",
+    "build": "tsc",
+    "migrate": "knex migrate:latest",
+    "seed": "knex seed:run",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
