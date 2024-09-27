@@ -4,3 +4,9 @@ export enum AdminRole {
   ContentAdmin = 'contentadmin',
   // Add any other roles you need
 }
+
+export enum TaskStatus {
+  ToDo = 'to- do',
+  InProgress = 'in_progress',
+  Completed = 'completed',
+}
