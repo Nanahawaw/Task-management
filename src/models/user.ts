@@ -5,6 +5,8 @@ export class User extends Model {
   id!: number;
   email!: string;
   password!: string;
+  isVerified!: boolean;
+  verificationToken!: string;
 
   static tableName = 'users';
 
@@ -13,6 +15,10 @@ export class User extends Model {
   }
   async $beforeInsert() {
     this.password = await User.hashedPassword(this.password);
+    this.isVerified = false;
+    this.verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString(); //6 digit otp
   }
 
   async verifyPassword(password: string): Promise<boolean> {
