@@ -10,3 +10,9 @@ export enum TaskStatus {
   InProgress = 'in_progress',
   Completed = 'completed',
 }
+export enum Tags {
+  Urgent = 'urgent',
+  Bug = 'bug',
+  Feature = 'feature',
+  // Add any other tags you need
+}
