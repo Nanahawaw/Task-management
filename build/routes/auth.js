@@ -38,11 +38,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const authService = __importStar(require("../services/authService"));
 const adminAuthGuard_1 = require("../middlewares/adminAuthGuard");
+const validation_1 = require("../middlewares/validation");
 const router = express_1.default.Router();
-router.post('/register', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/register', validation_1.validateRegistration, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        const result = yield authService.registerUser(email, password);
+        const result = yield authService.registerUser(email, password, res);
         res.status(201).json(result);
     }
     catch (error) {
@@ -52,7 +53,7 @@ router.post('/register', (req, res, next) => __awaiter(void 0, void 0, void 0, f
 router.post('/verify-email', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, token } = req.body;
-        const result = yield authService.verifyEmail(email, token);
+        const result = yield authService.verifyEmail(email, token, res);
         res.status(200).json(result);
     }
     catch (error) {
@@ -69,7 +70,7 @@ router.post('/resend-verification', (req, res, next) => __awaiter(void 0, void 0
         next(error);
     }
 }));
-router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/login', validation_1.validateLogin, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
         const result = yield authService.loginUser(email, password, res);
@@ -79,7 +80,7 @@ router.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, func
         next(error);
     }
 }));
-router.post('/admin/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.post('/admin/login', validation_1.validateLogin, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
         const result = yield authService.loginAdmin(email, password, res);

@@ -9,10 +9,14 @@ import {
 } from '../utils/email';
 import { generatePassword } from '../utils/generatePassword';
 
-export const registerUser = async (email: string, password: string) => {
+export const registerUser = async (
+  email: string,
+  password: string,
+  res: Response
+) => {
   const existingUser = await User.query().findOne({ email });
   if (existingUser) {
-    throw new Error(`User ${email} already exists, Please log in`);
+    return res.status(409).json(`User ${email} already exists, Please log in`);
   }
   const user = await User.query().insert({ email, password });
   await sendVerificationEmail(email, user.verificationToken);
@@ -22,21 +26,27 @@ export const registerUser = async (email: string, password: string) => {
   };
 };
 
-export const verifyEmail = async (email: string, token: string) => {
+export const verifyEmail = async (
+  email: string,
+  token: string,
+  res: Response
+) => {
   const user = await User.query().findOne({ email });
   if (!user) {
-    throw new Error('User not found');
+    return res.status(404).json('User not found');
   }
   if (user.isVerified) {
-    throw new Error('User has already been verified');
+    return res.status(409).json('User has already been verified');
   }
   if (token === user.verificationToken) {
-    await User.query().patch({ isVerified: true }).where({ email });
+    await User.query()
+      .patch({ isVerified: true, verificationToken: '' })
+      .where({ email });
     return {
       message: 'Email verification successful',
     };
   } else {
-    throw new Error('Invalid verification token');
+    return res.status(500).json('Invalid verification token');
   }
 };
 
@@ -60,13 +70,13 @@ export const loginUser = async (
 ) => {
   const user = await User.query().findOne({ email });
   if (!user || !(await user.verifyPassword(password))) {
-    throw new Error('Invalid credentials');
+    return res.status(401).json('Invalid credentials');
   }
 
   if (!user.isVerified) {
-    throw new Error(
-      'Email not verified. Please verify your email before logging in.'
-    );
+    return res
+      .status(500)
+      .json('Email not verified. Please verify your email before logging in.');
   }
 
   const token = jwt.sign(
@@ -82,7 +92,7 @@ export const loginUser = async (
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
 
-  return { user };
+  return { message: 'User logged in successfully' };
 };
 
 export const loginAdmin = async (
@@ -114,24 +124,28 @@ export const loginAdmin = async (
 export const createAdmin = async (
   email: string,
   role: AdminRole,
-  creatorId: number
+  creatorId: number,
+  res: Response
 ) => {
   const creator = await Admin.query().findById(creatorId);
   if (!creator || creator.role !== AdminRole.SuperAdmin) {
-    throw new Error('Only super admin can create other admins');
+    return res.status(401).json('Only super admin can create other admins');
   }
+  try {
+    const temporaryPassword = generatePassword(); // Generate a random password
 
-  const temporaryPassword = generatePassword(); // Generate a random password
+    const admin = await Admin.query().insert({
+      email,
+      password: await Admin.hashPassword(temporaryPassword),
+      role,
+    });
 
-  const admin = await Admin.query().insert({
-    email,
-    password: await Admin.hashPassword(temporaryPassword),
-    role,
-  });
-
-  await sendAdminInvitationEmail(email, temporaryPassword, role);
-
-  return admin;
+    await sendAdminInvitationEmail(email, temporaryPassword, role);
+    return 'Admin Invitation sent successfully';
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: error });
+  }
 };
 
 export const logout = (res: Response) => {

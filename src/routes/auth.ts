@@ -13,7 +13,10 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;
-      const result = await authService.registerUser(email, password);
+      const result = await authService.registerUser(email, password, res);
+
+      // Log or inspect result
+      console.log('Registration result:', result);
       res.status(201).json(result);
     } catch (error) {
       next(error);
@@ -26,7 +29,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, token } = req.body;
-      const result = await authService.verifyEmail(email, token);
+      const result = await authService.verifyEmail(email, token, res);
       res.status(200).json(result);
     } catch (error) {
       next(error);
@@ -82,7 +85,7 @@ router.post(
     try {
       const { email, role } = req.body;
       const creatorId = (req as Request & { admin?: Admin }).admin!.id;
-      const result = await authService.createAdmin(email, role, creatorId);
+      const result = await authService.createAdmin(email, role, creatorId, res);
       res.status(201).json(result);
     } catch (error) {
       next(error);

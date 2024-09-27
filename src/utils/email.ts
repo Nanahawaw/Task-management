@@ -1,15 +1,18 @@
 import nodemailer from 'nodemailer';
 import { AdminRole } from './enum';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT), // Convert to number
-  secure: process.env.EMAIL_PORT === '465', // Use boolean
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL,
     pass: process.env.PASSWORD,
   },
-} as nodemailer.TransportOptions);
+});
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const mailOptions = {
