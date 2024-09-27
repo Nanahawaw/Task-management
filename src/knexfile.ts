@@ -11,9 +11,9 @@ export default {
     database: process.env.DB_NAME || 'task_management',
   },
   migrations: {
-    directory: './src/db/migrations',
+    directory: './db/migrations',
   },
   seeds: {
-    directory: './src/db/seeds',
+    directory: './db/seeds',
   },
 };

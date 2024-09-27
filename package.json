@@ -8,8 +8,8 @@
     "start": "dist/app.js",
     "dev": "nodemon src/app.ts",
     "build": "tsc",
-    "knex": "knex",
-    "migrate": "knex migrate:latest",
+    "knex": "knex --knexfile ./src/knexfile.js",
+    "migrate": "knex migrate:latest --knexfile ./src/knexfile.js",
     "seed": "knex seed:run",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
