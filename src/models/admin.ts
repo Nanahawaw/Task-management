@@ -1,4 +1,5 @@
 import { Model } from 'objection';
+import { AdminRole } from '../utils/enum';
 
 import bcrypt from 'bcrypt';
 
