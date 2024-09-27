@@ -22,13 +22,14 @@ export const validateRegistration = (
     next();
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      // Extract only the first error message
+      const errorMessage = error.errors[0]?.message || 'Validation error';
+      res.status(400).json({ error: errorMessage });
     } else {
       res.status(400).json({ error: 'Invalid input' });
     }
   }
 };
-
 export const validateLogin = (
   req: Request,
   res: Response,
@@ -39,7 +40,9 @@ export const validateLogin = (
     next();
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: error.errors });
+      // Extract only the first error message
+      const errorMessage = error.errors[0]?.message || 'Validation error';
+      res.status(400).json({ error: errorMessage });
     } else {
       res.status(400).json({ error: 'Invalid input' });
     }
