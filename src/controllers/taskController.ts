@@ -53,26 +53,17 @@ export const assignTask = async (req: Request, res: Response) => {
 };
 
 export const updateTaskStatus = async (
-  req: Request & { user?: User; admin?: Admin },
+  req: Request & { user?: User },
   res: Response
 ): Promise<void> => {
   try {
     const { taskId } = req.params;
     const { status } = req.body;
 
-    let isAdmin = false;
     let userId: number;
-
-    //determine if the user is an admin or reqular user
-    if (req.admin) {
-      isAdmin =
-        req.admin.role === AdminRole.SuperAdmin ||
-        req.admin.role === AdminRole.ContentAdmin;
-      userId = req.admin.id;
-      console.log(userId);
-    } else if (req.user) {
+    if (req.user) {
       userId = req.user.id;
-      console.log(userId);
+      console.log('User ID: ', userId);
     } else {
       handleError(res, ErrorType.UNAUTHORIZED, 'Not authenticated');
       return;
@@ -87,8 +78,7 @@ export const updateTaskStatus = async (
     const task = await taskService.updateTaskStatus(
       Number(taskId),
       status as TaskStatus,
-      userId,
-      isAdmin
+      userId
     );
     res.json(task);
   } catch (error: any) {
@@ -96,14 +86,28 @@ export const updateTaskStatus = async (
   }
 };
 
-export const getAllTags = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const updateTaskStatusAsAdmin = async (
+  req: Request & { admin?: Admin },
+  res: Response
+): Promise<void> => {
   try {
-    const tags = await taskService.getAllTags();
-    res.json(tags);
+    const { taskId } = req.params;
+    const { status } = req.body;
+    const adminId = req.admin!.id;
+
+    // Validate status
+    if (!Object.values(TaskStatus).includes(status)) {
+      handleError(res, ErrorType.BAD_REQUEST, 'Invalid status');
+      return;
+    }
+
+    // Update the task as admin
+    const task = await taskService.updateTaskStatus(
+      Number(taskId),
+      status,
+      adminId
+    );
+    res.json(task);
   } catch (error: any) {
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }

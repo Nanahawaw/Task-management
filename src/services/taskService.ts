@@ -1,5 +1,4 @@
 import { Task } from '../models/task';
-import { User } from '../models/user';
 import { Tags, TaskStatus, ErrorType } from '../utils/enum';
 import { sendNotification } from '../websockets';
 import { Server } from 'socket.io';
@@ -75,16 +74,13 @@ export class TaskService {
   async updateTaskStatus(
     taskId: number,
     status: TaskStatus,
-    userId: number,
-    isAdmin: boolean
+    userId: number
   ): Promise<Task> {
     const task = await Task.query().findById(taskId);
     if (!task) throw new Error(ErrorType.NOT_FOUND);
 
-    //admins can update any task
-    if (isAdmin) {
-      return await task.$query().patchAndFetch({ status });
-    }
+    //task owners and assignees can update status of task
+
     if (task.createdById === userId || task.assignedToId === userId) {
       return await task.$query().patchAndFetch({ status });
     }
@@ -93,11 +89,6 @@ export class TaskService {
 
   async getTasksByTags(tags: Tags[]): Promise<Task[]> {
     return await Task.query().whereIn('tags', tags);
-  }
-
-  async getAllTags(): Promise<Tags[]> {
-    const tasks = await Task.query().select('tags').distinct();
-    return tasks.map((task) => task.tags);
   }
 }
 

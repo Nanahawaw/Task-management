@@ -2,8 +2,12 @@ import jwt from 'jsonwebtoken';
 import { Admin } from '../models/admin';
 import { Request, Response, NextFunction } from 'express';
 
+interface AdminAuthRequest extends Request {
+  admin?: Admin;
+}
+
 export const AdminAuthGuard = async (
-  req: Request,
+  req: AdminAuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -22,6 +26,8 @@ export const AdminAuthGuard = async (
     const admin = await Admin.query().findById(decoded.id);
     if (!admin) throw new Error('Admin not found');
     (req as Request & { admin?: Admin }).admin = admin;
+    console.log('AdminAuthGuard: Admin authenticated', req.admin);
+
     next();
   } catch (error) {
     res.status(401).json({ error: 'Invalid token' });

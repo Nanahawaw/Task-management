@@ -1,18 +1,20 @@
 import express from 'express';
 import * as taskController from '../controllers/taskController';
 import { UserAuthGuard } from '../middlewares/userAuthGuard';
-import { CombinedAuthGuard } from '../middlewares/authguard';
+import { AdminAuthGuard } from '../middlewares/adminAuthGuard';
 
 const router = express.Router();
 
 router.post('/', UserAuthGuard, taskController.createTask);
 router.patch('/:taskId/assign', UserAuthGuard, taskController.assignTask);
+router.patch('/:taskId/status', UserAuthGuard, taskController.updateTaskStatus);
+
+// Admin specific route to update task status
 router.patch(
-  '/:taskId/status',
-  CombinedAuthGuard,
-  taskController.updateTaskStatus
+  '/admin/:taskId/status',
+  AdminAuthGuard, // Use only AdminAuthGuard here
+  taskController.updateTaskStatusAsAdmin
 );
-router.get('/tags', UserAuthGuard, taskController.getAllTags);
 router.get('/filter', UserAuthGuard, taskController.getTasksByTags);
 
 export default router;
