@@ -8,7 +8,7 @@ import noticationRoutes from './routes/notification';
 import cookieParser from 'cookie-parser';
 import Knex from 'knex';
 import { Model } from 'objection';
-import { sendNotification, setupWebSocket } from './websockets';
+import { setupWebSocket } from './websockets';
 
 //import knex config
 import knexConfig from './knexfile';
