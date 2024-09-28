@@ -1,5 +1,6 @@
 import { Task } from '../models/task';
 import { Tags, TaskStatus, ErrorType } from '../utils/enum';
+import { TaskFilterParams } from '../utils/interface';
 import { sendNotification } from '../websockets';
 import { Server } from 'socket.io';
 
@@ -87,8 +88,36 @@ export class TaskService {
     throw new Error(ErrorType.UNAUTHORIZED);
   }
 
-  async getTasksByTags(tags: Tags[]): Promise<Task[]> {
-    return await Task.query().whereIn('tags', tags);
+  async getTasksByTags({
+    page,
+    limit,
+    status,
+    tags,
+    sortBy,
+    order,
+  }: TaskFilterParams) {
+    let query = Task.query();
+    //filter by status if provided
+    if (status) {
+      query = query.where('status', status);
+    }
+    //by tags
+    if (tags) {
+      query = query.where('tags', tags);
+    }
+
+    // Apply sorting only if sortBy is defined and valid
+    if (sortBy && order) {
+      query = query.orderBy(sortBy, order);
+    } else {
+      // Use default sorting by dueDate in ascending order if not provided
+      query = query.orderBy('dueDate', 'asc');
+    }
+
+    // Apply pagination
+    const paginatedResult = await query.page(page - 1, limit);
+
+    return paginatedResult;
   }
 }
 

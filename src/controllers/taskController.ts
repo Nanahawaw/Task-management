@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { taskService } from '../services/taskService';
 import { User } from '../models/user';
 import { Admin } from '../models/admin';
-import { AdminRole, ErrorType, Tags, TaskStatus } from '../utils/enum';
+import { ErrorType, Tags, TaskStatus } from '../utils/enum';
 import { handleError } from '../utils/errorHandler';
 
 export const createTask = async (
@@ -113,15 +113,48 @@ export const updateTaskStatusAsAdmin = async (
   }
 };
 
-export const getTasksByTags = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getTasks = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { tags } = req.query;
-    const filteredTasks = await taskService.getTasksByTags(tags as Tags[]);
-    res.json(filteredTasks);
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      tags,
+      sortBy = 'dueDate',
+      order = 'asc',
+    } = req.query;
+
+    //convert query params
+    const pageNum = parseInt(page as string, 10) || 1;
+    const pageSize = parseInt(limit as string, 10) || 10;
+    const taskStatus = status as string | undefined;
+    const taskTags = tags as string | undefined;
+    const sortOrder =
+      (order as string).toLowerCase() === 'desc' ? 'desc' : 'asc';
+
+    //validate sortBy
+    const validSortColumns = [
+      'dueDate',
+      'createdAt',
+      'updatedAt',
+      'status',
+      'descsription',
+      'title',
+      'tags',
+    ];
+    const sortColumn = validSortColumns.includes(sortBy as string)
+      ? (sortBy as string)
+      : 'dueDate';
+    const tasks = await taskService.getTasksByTags({
+      page: pageNum,
+      limit: pageSize,
+      status: taskStatus,
+      tags: taskTags,
+      sortBy: sortColumn,
+      order: sortOrder,
+    });
+
+    res.json(tasks);
   } catch (error: any) {
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }

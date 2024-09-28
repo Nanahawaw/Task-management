@@ -15,6 +15,6 @@ router.patch(
   AdminAuthGuard, // Use only AdminAuthGuard here
   taskController.updateTaskStatusAsAdmin
 );
-router.get('/filter', UserAuthGuard, taskController.getTasksByTags);
+router.get('/', UserAuthGuard, taskController.getTasks);
 
 export default router;
