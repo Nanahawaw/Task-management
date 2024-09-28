@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
-import { notificationStorage } from './notificationStorage';
+import { Notification } from './models/notification';
 
 export function setupWebSocket(server: HttpServer): Server {
   const io = new Server(server);
@@ -27,12 +27,23 @@ export function setupWebSocket(server: HttpServer): Server {
 }
 
 //function to send notifications to specific users
-export function sendNotification(io: Server, userId: number, message: string) {
+export async function sendNotification(
+  io: Server,
+  userId: number,
+  message: string
+) {
   const roomName = `user_${userId}`;
   if (io) {
     io.to(roomName).emit('notification', message);
     console.log('emitted notification to room user_${userId}');
-    notificationStorage.addNotification(userId, message);
+    // store notification in database
+    await Notification.query().insert({
+      userId,
+      message,
+      isRead: false,
+      createdAt: new Date(),
+    });
+
     console.log('added notification to storage');
   } else {
     console.error('IO object is null or undefined');

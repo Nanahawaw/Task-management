@@ -1,5 +1,4 @@
 import { Task } from '../models/task';
-import { notificationStorage } from '../notificationStorage';
 import { Tags, TaskStatus, ErrorType } from '../utils/enum';
 import { TaskFilterParams } from '../utils/interface';
 import { sendNotification } from '../websockets';
@@ -66,7 +65,6 @@ export class TaskService {
       try {
         const notificationMessage = `You have been assigned a new task: ${task.title}`;
         sendNotification(this.io, assignedToId, notificationMessage);
-        notificationStorage.addNotification(assignedToId, notificationMessage);
         console.log('Notification sent successfully');
       } catch (error) {
         console.error('Error sending notification', error);
