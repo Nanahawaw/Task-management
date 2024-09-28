@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { UserAuthGuard } from '../middlewares/userAuthGuard';
 import { taskService, CreateTaskParams } from '../services/taskService';
 import { User } from '../models/user';
-import { AdminRole, Tags, TaskStatus } from '../utils/enum';
+import { AdminRole, ErrorTypes, Tags, TaskStatus } from '../utils/enum';
 import { Admin } from '../models/admin';
 
 const router = express.Router();
@@ -10,15 +10,19 @@ const router = express.Router();
 router.post(
   '/',
   UserAuthGuard,
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
       const { title, description, dueDate, assignedToId, tags } = req.body;
       const createdById = (req as Request & { user?: User }).user!.id;
 
       // Validate that the provided tags value is a valid Tags enum
       if (!Object.values(Tags).includes(tags)) {
-        res.status(400).json({ error: 'Invalid tags value' });
-        return;
+        return res.status(400).json({ error: ErrorTypes.InvalidTags });
+      }
+
+      // Validate dueDate format
+      if (isNaN(Date.parse(dueDate))) {
+        return res.status(400).json({ error: ErrorTypes.InvalidFormat });
       }
 
       const taskParams: CreateTaskParams = {
@@ -29,10 +33,17 @@ router.post(
         tags: tags as Tags,
         createdById,
       };
+
       const task = await taskService.createTask(taskParams);
-      res.status(201).json(task);
+      // Add return here to ensure the function exits after sending the response
+      return res.status(201).json(task);
     } catch (error) {
-      next(error);
+      // Improved error handling
+      console.error('Error creating task:', error);
+      return res.status(500).json({
+        message: error,
+        error: ErrorTypes.InternalServerError,
+      });
     }
   }
 );
