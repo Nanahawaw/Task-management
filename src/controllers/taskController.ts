@@ -32,6 +32,7 @@ export const createTask = async (
     );
     res.status(201).json(task);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -48,6 +49,7 @@ export const assignTask = async (req: Request, res: Response) => {
     );
     res.json(task);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -82,6 +84,7 @@ export const updateTaskStatus = async (
     );
     res.json(task);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -109,6 +112,7 @@ export const updateTaskStatusAsAdmin = async (
     );
     res.json(task);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -156,6 +160,7 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
 
     res.json(tasks);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };

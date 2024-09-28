@@ -13,6 +13,7 @@ export const addComment = async (req: Request, res: Response) => {
     const comment = await commentService.addComment(content, userId, taskId);
     res.status(201).json(comment);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -29,6 +30,7 @@ export const editComment = async (req: Request, res: Response) => {
     );
     res.json(comment);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -55,6 +57,7 @@ export const adminDeleteComment = async (
     await commentService.deleteComment(commentId, userId, true);
     res.status(201).send('Comment deleted successfully');
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };

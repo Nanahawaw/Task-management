@@ -9,6 +9,7 @@ export const registerUser = async (req: Request, res: Response) => {
     const result = await authService.registerUser(email, password);
     res.status(201).json(result);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -18,6 +19,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     const result = await authService.verifyEmail(email, token);
     res.status(200).json(result);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -28,6 +30,7 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     const result = await authService.resendVerificationEmail(email);
     res.status(200).json(result);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -38,6 +41,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const result = await authService.loginUser(email, password, res);
     res.status(200).json(result);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.UNAUTHORIZED, error.message);
   }
 };
@@ -48,6 +52,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
     const result = await authService.loginAdmin(email, password, res);
     res.status(200).json(result);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.UNAUTHORIZED, error.message);
   }
 };
@@ -59,6 +64,7 @@ export const createAdmin = async (req: Request, res: Response) => {
     const result = await authService.createAdmin(email, role, creatorId, res);
     res.status(201).json(result);
   } catch (error: any) {
+    console.log(error);
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
