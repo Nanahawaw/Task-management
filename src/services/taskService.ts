@@ -8,7 +8,6 @@ export interface CreateTaskParams {
   title: string;
   description: string;
   dueDate: Date;
-  assignedToId: number;
   tags: Tags;
   createdById: number;
 }

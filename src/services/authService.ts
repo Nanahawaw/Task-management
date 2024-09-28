@@ -1,6 +1,6 @@
 import { User } from '../models/user';
 import { Admin } from '../models/admin';
-import { AdminRole } from '../utils/enum';
+import { AdminRole, ErrorType, UserError } from '../utils/enum';
 import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import {
@@ -9,14 +9,10 @@ import {
 } from '../utils/email';
 import { generatePassword } from '../utils/generatePassword';
 
-export const registerUser = async (
-  email: string,
-  password: string,
-  res: Response
-) => {
+export const registerUser = async (email: string, password: string) => {
   const existingUser = await User.query().findOne({ email });
   if (existingUser) {
-    return res.status(409).json(`User ${email} already exists, Please log in`);
+    throw new Error(UserError.EMAIL_ALREADY_EXISTS);
   }
   const user = await User.query().insert({ email, password });
   await sendVerificationEmail(email, user.verificationToken);
@@ -26,17 +22,13 @@ export const registerUser = async (
   };
 };
 
-export const verifyEmail = async (
-  email: string,
-  token: string,
-  res: Response
-) => {
+export const verifyEmail = async (email: string, token: string) => {
   const user = await User.query().findOne({ email });
   if (!user) {
-    return res.status(404).json('User not found');
+    throw new Error(UserError.USER_NOT_FOUND);
   }
   if (user.isVerified) {
-    return res.status(409).json('User has already been verified');
+    throw new Error(ErrorType.BAD_REQUEST);
   }
   if (token === user.verificationToken) {
     await User.query()
@@ -46,14 +38,14 @@ export const verifyEmail = async (
       message: 'Email verification successful',
     };
   } else {
-    return res.status(500).json('Invalid verification token');
+    throw new Error(ErrorType.VALIDATION_ERROR);
   }
 };
 
 export const resendVerificationEmail = async (email: string) => {
   const user = await User.query().findOne({ email, isVerified: false });
   if (!user) {
-    throw new Error('User not found or already verified');
+    throw new Error(ErrorType.NOT_FOUND);
   }
 
   const newToken = Math.floor(100000 + Math.random() * 900000).toString();
@@ -70,13 +62,11 @@ export const loginUser = async (
 ) => {
   const user = await User.query().findOne({ email });
   if (!user || !(await user.verifyPassword(password))) {
-    return res.status(401).json('Invalid credentials');
+    throw new Error(ErrorType.UNAUTHORIZED);
   }
 
   if (!user.isVerified) {
-    return res
-      .status(500)
-      .json('Email not verified. Please verify your email before logging in.');
+    throw new Error(UserError.UNAUTHORIZED);
   }
 
   const token = jwt.sign(
@@ -102,7 +92,7 @@ export const loginAdmin = async (
 ) => {
   const admin = await Admin.query().findOne({ email });
   if (!admin || !(await admin.verifyPassword(password))) {
-    throw new Error('Invalid credentials');
+    throw new Error(ErrorType.UNAUTHORIZED);
   }
   const token = jwt.sign(
     { id: admin.id, role: admin.role },
@@ -129,23 +119,19 @@ export const createAdmin = async (
 ) => {
   const creator = await Admin.query().findById(creatorId);
   if (!creator || creator.role !== AdminRole.SuperAdmin) {
-    return res.status(401).json('Only super admin can create other admins');
+    throw new Error(ErrorType.UNAUTHORIZED);
   }
-  try {
-    const temporaryPassword = generatePassword(); // Generate a random password
 
-    const admin = await Admin.query().insert({
-      email,
-      password: await Admin.hashPassword(temporaryPassword),
-      role,
-    });
+  const temporaryPassword = generatePassword(); // Generate a random password
 
-    await sendAdminInvitationEmail(email, temporaryPassword, role);
-    return 'Admin Invitation sent successfully';
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: error });
-  }
+  const admin = await Admin.query().insert({
+    email,
+    password: await Admin.hashPassword(temporaryPassword),
+    role,
+  });
+
+  await sendAdminInvitationEmail(email, temporaryPassword, role);
+  return 'Admin Invitation sent successfully';
 };
 
 export const logout = (res: Response) => {

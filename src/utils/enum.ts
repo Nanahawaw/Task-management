@@ -17,13 +17,21 @@ export enum Tags {
   // Add any other tags you need
 }
 
-export enum ErrorTypes {
-  InternalServerError = 'Internal Server Error',
-  BadRequest = 'Bad Request',
-  NotFound = 'Not Found',
-  InvalidTags = 'Invalid tags value',
-  Unauthorized = 'Unauthorized',
-  Forbidden = 'Forbidden',
-  InvalidFormat = 'Invalid date format',
-  // Add more as needed
+export enum ErrorType {
+  VALIDATION_ERROR = 'Validation Error',
+  DATABASE_ERROR = 'Database Error',
+  NOT_FOUND = 'Not Found',
+  INTERNAL_SERVER_ERROR = 'Internal Server Error',
+  UNAUTHORIZED = 'Unauthorized',
+  FORBIDDEN = 'Forbidden',
+  BAD_REQUEST = 'Bad Request',
+  //add more as needed
+}
+
+export enum UserError {
+  EMAIL_ALREADY_EXISTS = 'Email already exists',
+  USER_NOT_FOUND = 'User not found',
+  WRONG_CREDENTIALS = 'Wrong credentials',
+  UNAUTHORIZED = 'Email Verification required',
+  // Add any other errors related to user authentication
 }

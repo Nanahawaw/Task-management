@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { UserAuthGuard } from '../middlewares/userAuthGuard';
 import { taskService, CreateTaskParams } from '../services/taskService';
 import { User } from '../models/user';
-import { AdminRole, ErrorTypes, Tags, TaskStatus } from '../utils/enum';
+import { AdminRole, ErrorType, Tags, TaskStatus } from '../utils/enum';
 import { Admin } from '../models/admin';
 
 const router = express.Router();
@@ -12,24 +12,23 @@ router.post(
   UserAuthGuard,
   async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {
-      const { title, description, dueDate, assignedToId, tags } = req.body;
+      const { title, description, dueDate, tags } = req.body;
       const createdById = (req as Request & { user?: User }).user!.id;
 
       // Validate that the provided tags value is a valid Tags enum
       if (!Object.values(Tags).includes(tags)) {
-        return res.status(400).json({ error: ErrorTypes.InvalidTags });
+        return res.status(400).json({ error: ErrorType.VALIDATION_ERROR });
       }
 
       // Validate dueDate format
       if (isNaN(Date.parse(dueDate))) {
-        return res.status(400).json({ error: ErrorTypes.InvalidFormat });
+        return res.status(400).json({ error: ErrorType.VALIDATION_ERROR });
       }
 
       const taskParams: CreateTaskParams = {
         title,
         description,
         dueDate: new Date(dueDate),
-        assignedToId,
         tags: tags as Tags,
         createdById,
       };
@@ -42,7 +41,7 @@ router.post(
       console.error('Error creating task:', error);
       return res.status(500).json({
         message: error,
-        error: ErrorTypes.InternalServerError,
+        error: ErrorType.INTERNAL_SERVER_ERROR,
       });
     }
   }
