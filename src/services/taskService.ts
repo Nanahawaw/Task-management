@@ -77,13 +77,18 @@ export class TaskService {
     status: TaskStatus,
     userId: number,
     isAdmin: boolean
-  ) {
+  ): Promise<Task> {
     const task = await Task.query().findById(taskId);
     if (!task) throw new Error(ErrorType.NOT_FOUND);
-    if (!isAdmin && task.assignedToId !== userId) {
-      throw new Error(ErrorType.UNAUTHORIZED);
+
+    //admins can update any task
+    if (isAdmin) {
+      return await task.$query().patchAndFetch({ status });
     }
-    return await task.$query().patchAndFetch({ status });
+    if (task.createdById === userId || task.assignedToId === userId) {
+      return await task.$query().patchAndFetch({ status });
+    }
+    throw new Error(ErrorType.UNAUTHORIZED);
   }
 
   async getTasksByTags(tags: Tags[]): Promise<Task[]> {

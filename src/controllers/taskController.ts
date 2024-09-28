@@ -69,10 +69,18 @@ export const updateTaskStatus = async (
         req.admin.role === AdminRole.SuperAdmin ||
         req.admin.role === AdminRole.ContentAdmin;
       userId = req.admin.id;
+      console.log(userId);
     } else if (req.user) {
       userId = req.user.id;
+      console.log(userId);
     } else {
       handleError(res, ErrorType.UNAUTHORIZED, 'Not authenticated');
+      return;
+    }
+
+    // Validate the status
+    if (!Object.values(TaskStatus).includes(status)) {
+      handleError(res, ErrorType.BAD_REQUEST, 'Invalid status');
       return;
     }
     //update the task
