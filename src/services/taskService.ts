@@ -1,4 +1,5 @@
 import { Task } from '../models/task';
+import { notificationStorage } from '../notificationStorage';
 import { Tags, TaskStatus, ErrorType } from '../utils/enum';
 import { TaskFilterParams } from '../utils/interface';
 import { sendNotification } from '../websockets';
@@ -9,6 +10,7 @@ export class TaskService {
 
   setIo(io: Server) {
     this.io = io;
+    console.log('websocket server initialized in task service');
   }
 
   async createTask(
@@ -60,11 +62,15 @@ export class TaskService {
 
     //notified the assigned user if websocket is initialized
     if (this.io) {
-      sendNotification(
-        this.io,
-        assignedToId,
-        `You have been assigned a new task: ${task.title}`
-      );
+      console.log('Attempting to send notification');
+      try {
+        const notificationMessage = `You have been assigned a new task: ${task.title}`;
+        sendNotification(this.io, assignedToId, notificationMessage);
+        notificationStorage.addNotification(assignedToId, notificationMessage);
+        console.log('Notification sent successfully');
+      } catch (error) {
+        console.error('Error sending notification', error);
+      }
     } else {
       console.error('WebSocket server not initialized');
     }

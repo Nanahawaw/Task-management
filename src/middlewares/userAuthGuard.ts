@@ -24,7 +24,6 @@ export const UserAuthGuard = async (
     const user = await User.query().findById(decoded.id);
     if (!user) throw new Error('User not found');
     (req as Request & { user?: User }).user = user;
-    console.log('UserAuthGuard: User authenticated', req.user);
     next();
   } catch (error) {
     res.status(401).json({ error: 'Invalid token' });
