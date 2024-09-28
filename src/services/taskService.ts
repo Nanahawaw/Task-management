@@ -96,7 +96,7 @@ export class TaskService {
     sortBy,
     order,
   }: TaskFilterParams) {
-    let query = Task.query();
+    let query = Task.query().withGraphFetched('comments');
     //filter by status if provided
     if (status) {
       query = query.where('status', status);

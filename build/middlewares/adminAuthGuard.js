@@ -29,6 +29,7 @@ const AdminAuthGuard = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         if (!admin)
             throw new Error('Admin not found');
         req.admin = admin;
+        console.log('AdminAuthGuard: Admin authenticated', req.admin);
         next();
     }
     catch (error) {

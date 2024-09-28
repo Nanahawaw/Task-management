@@ -1,13 +1,9 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import * as authService from '../services/authService';
 import { handleError } from '../utils/errorHandler';
 import { ErrorType } from '../utils/enum';
 import { Admin } from '../models/admin';
-export const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const registerUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const result = await authService.registerUser(email, password);
@@ -16,11 +12,7 @@ export const registerUser = async (
     handleError(res, ErrorType.INTERNAL_SERVER_ERROR, error.message);
   }
 };
-export const verifyEmail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const verifyEmail = async (req: Request, res: Response) => {
   try {
     const { email, token } = req.body;
     const result = await authService.verifyEmail(email, token);
@@ -30,11 +22,7 @@ export const verifyEmail = async (
   }
 };
 
-export const resendVerificationEmail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const resendVerificationEmail = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     const result = await authService.resendVerificationEmail(email);
@@ -44,11 +32,7 @@ export const resendVerificationEmail = async (
   }
 };
 
-export const loginUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const result = await authService.loginUser(email, password, res);
@@ -58,11 +42,7 @@ export const loginUser = async (
   }
 };
 
-export const loginAdmin = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const loginAdmin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const result = await authService.loginAdmin(email, password, res);
@@ -72,11 +52,7 @@ export const loginAdmin = async (
   }
 };
 
-export const createAdmin = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const createAdmin = async (req: Request, res: Response) => {
   try {
     const { email, role } = req.body;
     const creatorId = (req as Request & { admin?: Admin }).admin!.id;

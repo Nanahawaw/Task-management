@@ -18,7 +18,8 @@ const user_1 = require("../models/user");
 const UserAuthGuard = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.cookies.token;
     if (!token) {
-        return res.status(401).json({ error: 'Aunthentication required' });
+        res.status(401).json({ error: 'Aunthentication required' });
+        return;
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
@@ -26,10 +27,12 @@ const UserAuthGuard = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         if (!user)
             throw new Error('User not found');
         req.user = user;
+        console.log('UserAuthGuard: User authenticated', req.user);
         next();
     }
     catch (error) {
-        return res.status(401).json({ error: 'Invalid token' });
+        res.status(401).json({ error: 'Invalid token' });
+        return;
     }
 });
 exports.UserAuthGuard = UserAuthGuard;

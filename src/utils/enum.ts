@@ -6,7 +6,7 @@ export enum AdminRole {
 }
 
 export enum TaskStatus {
-  ToDo = 'to_do',
+  Pending = 'not_started',
   InProgress = 'in_progress',
   Completed = 'completed',
 }

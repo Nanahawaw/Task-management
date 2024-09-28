@@ -19,10 +19,10 @@ const enum_1 = require("../utils/enum");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const email_1 = require("../utils/email");
 const generatePassword_1 = require("../utils/generatePassword");
-const registerUser = (email, password, res) => __awaiter(void 0, void 0, void 0, function* () {
+const registerUser = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
     const existingUser = yield user_1.User.query().findOne({ email });
     if (existingUser) {
-        return res.status(409).json(`User ${email} already exists, Please log in`);
+        throw new Error(enum_1.UserError.EMAIL_ALREADY_EXISTS);
     }
     const user = yield user_1.User.query().insert({ email, password });
     yield (0, email_1.sendVerificationEmail)(email, user.verificationToken);
@@ -31,29 +31,31 @@ const registerUser = (email, password, res) => __awaiter(void 0, void 0, void 0,
     };
 });
 exports.registerUser = registerUser;
-const verifyEmail = (email, token, res) => __awaiter(void 0, void 0, void 0, function* () {
+const verifyEmail = (email, token) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_1.User.query().findOne({ email });
     if (!user) {
-        return res.status(404).json('User not found');
+        throw new Error(enum_1.UserError.USER_NOT_FOUND);
     }
     if (user.isVerified) {
-        return res.status(409).json('User has already been verified');
+        throw new Error(enum_1.ErrorType.BAD_REQUEST);
     }
     if (token === user.verificationToken) {
-        yield user_1.User.query().patch({ isVerified: true }).where({ email });
+        yield user_1.User.query()
+            .patch({ isVerified: true, verificationToken: '' })
+            .where({ email });
         return {
             message: 'Email verification successful',
         };
     }
     else {
-        throw new Error('Invalid verification token');
+        throw new Error(enum_1.ErrorType.VALIDATION_ERROR);
     }
 });
 exports.verifyEmail = verifyEmail;
 const resendVerificationEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_1.User.query().findOne({ email, isVerified: false });
     if (!user) {
-        throw new Error('User not found or already verified');
+        throw new Error(enum_1.ErrorType.NOT_FOUND);
     }
     const newToken = Math.floor(100000 + Math.random() * 900000).toString();
     yield user_1.User.query().findById(user.id).patch({ verificationToken: newToken });
@@ -64,12 +66,10 @@ exports.resendVerificationEmail = resendVerificationEmail;
 const loginUser = (email, password, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_1.User.query().findOne({ email });
     if (!user || !(yield user.verifyPassword(password))) {
-        return res.status(401).json('Invalid credentials');
+        throw new Error(enum_1.ErrorType.UNAUTHORIZED);
     }
     if (!user.isVerified) {
-        return res
-            .status(500)
-            .json('Email not verified. Please verify your email before logging in.');
+        throw new Error(enum_1.UserError.UNAUTHORIZED);
     }
     const token = jsonwebtoken_1.default.sign({ id: user.id, role: 'user' }, process.env.JWT_SECRET, { expiresIn: '1d' });
     // Set the token as an HTTP-only cookie
@@ -78,13 +78,13 @@ const loginUser = (email, password, res) => __awaiter(void 0, void 0, void 0, fu
         secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
         maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
-    return { user };
+    return { message: 'User logged in successfully' };
 });
 exports.loginUser = loginUser;
 const loginAdmin = (email, password, res) => __awaiter(void 0, void 0, void 0, function* () {
     const admin = yield admin_1.Admin.query().findOne({ email });
     if (!admin || !(yield admin.verifyPassword(password))) {
-        throw new Error('Invalid credentials');
+        throw new Error(enum_1.ErrorType.UNAUTHORIZED);
     }
     const token = jsonwebtoken_1.default.sign({ id: admin.id, role: admin.role }, process.env.JWT_SECRET, {
         expiresIn: '1d',
@@ -98,10 +98,10 @@ const loginAdmin = (email, password, res) => __awaiter(void 0, void 0, void 0, f
     return { message: 'Admin logged in successfully' };
 });
 exports.loginAdmin = loginAdmin;
-const createAdmin = (email, role, creatorId) => __awaiter(void 0, void 0, void 0, function* () {
+const createAdmin = (email, role, creatorId, res) => __awaiter(void 0, void 0, void 0, function* () {
     const creator = yield admin_1.Admin.query().findById(creatorId);
     if (!creator || creator.role !== enum_1.AdminRole.SuperAdmin) {
-        throw new Error('Only super admin can create other admins');
+        throw new Error(enum_1.ErrorType.UNAUTHORIZED);
     }
     const temporaryPassword = (0, generatePassword_1.generatePassword)(); // Generate a random password
     const admin = yield admin_1.Admin.query().insert({
@@ -110,7 +110,7 @@ const createAdmin = (email, role, creatorId) => __awaiter(void 0, void 0, void 0
         role,
     });
     yield (0, email_1.sendAdminInvitationEmail)(email, temporaryPassword, role);
-    return admin;
+    return 'Admin Invitation sent successfully';
 });
 exports.createAdmin = createAdmin;
 const logout = (res) => {
