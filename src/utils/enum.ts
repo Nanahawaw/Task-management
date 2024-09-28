@@ -25,6 +25,7 @@ export enum ErrorType {
   UNAUTHORIZED = 'Unauthorized',
   FORBIDDEN = 'Forbidden',
   BAD_REQUEST = 'Bad Request',
+  DUPLICATE_TASK_ERROR = 'Task with same title exists for this user',
   //add more as needed
 }
 

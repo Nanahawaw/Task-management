@@ -14,6 +14,7 @@ export const handleError = (
     [ErrorType.UNAUTHORIZED]: 401,
     [ErrorType.FORBIDDEN]: 403,
     [ErrorType.BAD_REQUEST]: 400,
+    [ErrorType.DUPLICATE_TASK_ERROR]: 409,
   };
   return res.status(statusCodes[type]).json({
     error: type,
