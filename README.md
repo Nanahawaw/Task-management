@@ -65,7 +65,7 @@ This will install all the dependencies listed in the `package.json` file.
 
 ## Database Setup
 
-1. Open MySQL command line or a MySQL workbench of your choice.
+1. Open MySQL command line or MySQL workbench .
 2. Create the database by running:
    ```sql
    CREATE DATABASE task_management;
@@ -76,18 +76,20 @@ This will install all the dependencies listed in the `package.json` file.
 
 1. Ensure you're in the project root directory.
 2. Run the migrations using the command specified in your `package.json`:
+
    ```
    npm run migrate
    ```
+
    This will execute the command: `knex migrate:latest --knexfile ./src/knexfile.js`
 
-If you need to create a new migration, you can use:
+   If you need to create a new migration, you can use:
 
-```
-npx knex migrate:make migration_name --knexfile ./src/knexfile.js
-```
+   ```
+   npx knex migrate:make migration_name --knexfile ./src/knexfile.js
+   ```
 
-Replace `migration_name` with a descriptive name for your migration.
+   Replace `migration_name` with a descriptive name for your migration.
 
 ## Seeding the Database
 
@@ -95,18 +97,20 @@ To seed the database with initial data, especially the super admin:
 
 1. Ensure you're in the project root directory.
 2. Run the seed command specified in your `package.json`:
+
    ```
    npm run seed
    ```
+
    This will execute the command: `knex seed:run --knexfile ./src/knexfile.js`
 
-If you need to create a new seed file, you can use:
+   If you need to create a new seed file, you can use:
 
-```
-npx knex seed:make seed_name --knexfile ./src/knexfile.js
-```
+   ```
+   npx knex seed:make seed_name --knexfile ./src/knexfile.js
+   ```
 
-Replace `seed_name` with a descriptive name for your seed file.
+   Replace `seed_name` with a descriptive name for your seed file.
 
 ## Starting the Project
 
@@ -125,10 +129,3 @@ npm start
 ```
 
 The server should now be running on `http://localhost:5000` (or the port specified in your `.env` file).
-
-## Troubleshooting
-
-- If you encounter any database connection issues, ensure your MySQL server is running and the credentials in the `.env` file are correct.
-- If migrations fail, check the console output for specific error messages. Ensure your database is created and accessible.
-- For any dependency-related issues, try deleting the `node_modules` folder and running `npm install` again.
-- If you encounter any TypeScript compilation errors, ensure you're using a compatible version of TypeScript and that all type definitions are correctly installed.
