@@ -12,7 +12,7 @@ This README provides a comprehensive guide to set up and run the Task Management
 6. [Running Migrations](#running-migrations)
 7. [Seeding the Database](#seeding-the-database)
 8. [Starting the Project](#starting-the-project)
-9. [Troubleshooting](#troubleshooting)
+9. [Documentation](#documentation)
 
 ## Prerequisites
 
@@ -129,3 +129,12 @@ npm start
 ```
 
 The server should now be running on `http://localhost:5000` (or the port specified in your `.env` file).
+
+## Documentation
+
+API Documentation
+You can access the API documentation at the following link:
+
+**[API Documentation - Postman](https://documenter.getpostman.com/view/37803915/2sAXqzVxsu)**
+
+This link will direct you to the Postman documentation where you can explore all available API endpoints, their usage, request examples, and responses.
